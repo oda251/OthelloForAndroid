@@ -3,6 +3,7 @@ package com.conpeitomorimori.othello
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-enum class piece {
+enum class Piece {
     BLACK{
         override fun toString(): String {
             return "●"
@@ -52,12 +54,15 @@ enum class piece {
         override fun toString(): String {
             return ""
         }
-    },
-}
+    };
 
-@Composable
-fun text(text:String, fontSize: Int = 20) {
-    Text(text = text, color = Color.White, fontSize = fontSize.sp)
+    fun toImage(): Int {
+        return when(this) {
+            BLACK -> R.drawable.black
+            WHITE -> R.drawable.white
+            else -> R.drawable.none
+        }
+    }
 }
 
 @Composable
@@ -65,7 +70,7 @@ fun OthelloApp() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(35,35,34)),
+            .background(color = Color(35, 35, 34)),
     ) {
         Box(
             modifier = Modifier
@@ -79,29 +84,29 @@ fun OthelloApp() {
 
 @Composable
 fun Board() {
-    var currentTurn by remember { mutableStateOf(piece.BLACK) }
+    var currentTurn by remember { mutableStateOf(Piece.BLACK) }
     fun switchTurn() {
         currentTurn = when (currentTurn) {
-            piece.BLACK -> piece.WHITE
-            else -> piece.BLACK
+            Piece.BLACK -> Piece.WHITE
+            else -> Piece.BLACK
         }
     }
 
-    fun initializer():Array<Array<piece>> {
+    fun initializer():Array<Array<Piece>> {
         val pieceArr = Array(8) {
-            Array(8) { piece.NONE }
+            Array(8) { Piece.NONE }
         }
-        pieceArr[3][3] = piece.WHITE
-        pieceArr[4][4] = piece.WHITE
-        pieceArr[3][4] = piece.BLACK
-        pieceArr[4][3] = piece.BLACK
+        pieceArr[3][3] = Piece.WHITE
+        pieceArr[4][4] = Piece.WHITE
+        pieceArr[3][4] = Piece.BLACK
+        pieceArr[4][3] = Piece.BLACK
 
         return pieceArr
     }
 
     var pieceArr by remember{ mutableStateOf(initializer()) }
 
-    var boardLog = remember { mutableStateListOf<Array<Array<piece>>>() }
+    val boardLog = remember { mutableStateListOf<Array<Array<Piece>>>() }
 
     fun doOver() {
         if (boardLog.size > 0) {
@@ -119,8 +124,8 @@ fun Board() {
         var tempB = 0
         var tempW = 0
         for (arr in pieceArr) {
-            tempB += arr.count { it == piece.BLACK }
-            tempW += arr.count { it == piece.WHITE }
+            tempB += arr.count { it == Piece.BLACK }
+            tempW += arr.count { it == Piece.WHITE }
         }
         amountOfBlack = tempB
         amountOfWhite = tempW
@@ -173,7 +178,7 @@ fun Board() {
             // 検証のリストは位置座標のみ保持しているため、対応する色のリストを取得
             val colorOfSquareLine = squareLine.map { pieceArr[it.first][it.second] }
             // 現在の色と反対の色を調べる
-            val oppositeColor = when(currentTurn) { piece.BLACK -> piece.WHITE else -> piece.BLACK }
+            val oppositeColor = when(currentTurn) { Piece.BLACK -> Piece.WHITE else -> Piece.BLACK }
             // 負方向で検証
             if (indexOfPieceToPut >= 2) {
                 // indexOf, lastIndexOfに第二引数を渡すと"too much argument"エラーが発生するため、このようにした
@@ -223,7 +228,7 @@ fun Board() {
     }
 
     fun handleClick(pieceID: Pair<Int, Int>) {
-        if (pieceArr[pieceID.first][pieceID.second] == piece.NONE) {
+        if (pieceArr[pieceID.first][pieceID.second] == Piece.NONE) {
             puttingCheck(pieceID)
         }
     }
@@ -236,33 +241,36 @@ fun Board() {
         }
         Spacer(modifier = Modifier.height(5.dp))
         Column (
-            modifier = Modifier.background(color = Color(130,110,110), shape = RoundedCornerShape(15))
+            modifier = Modifier
+                .background(color = Color(130, 110, 110), shape = RoundedCornerShape(15))
                 .padding(vertical = 6.dp, horizontal = 15.dp)
         ) {
-            text(
+            Text(
                 text = when (currentTurn) {
-                    piece.BLACK -> stringResource(R.string.blacksTurn)
+                    Piece.BLACK -> stringResource(R.string.blacksTurn)
                     else -> stringResource(
                         R.string.whitesTurn
                     )
                 },
-                fontSize = 20
+                fontSize = 20.sp,
+                color = Color.White
             )
-            text(
+            Text(
                 text = stringResource(R.string.showAmount, amountOfBlack, amountOfWhite),
-                fontSize = 15
+                fontSize = 15.sp,
+                color = Color.White
             )
         }
         Button(onClick = {
             pieceArr = initializer()
-            currentTurn = piece.BLACK
+            currentTurn = Piece.BLACK
             boardLog.clear()
             countPiece()
         }, colors = ButtonDefaults.buttonColors(backgroundColor = Color(160,40,30))) {
-            text(text = stringResource(R.string.newGame))
+            Text(text = stringResource(R.string.newGame), color = Color.White, fontSize = 20.sp)
         }
         Button(onClick = { switchTurn() }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray)) {
-            text(text = stringResource(R.string.skip))
+            Text(text = stringResource(R.string.skip), color = Color.White, fontSize = 20.sp)
         }
         Button(
             onClick = {
@@ -271,13 +279,13 @@ fun Board() {
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray)
         ) {
-            text(text = stringResource(R.string.do_over))
+            Text(text = stringResource(R.string.do_over), color = Color.White, fontSize = 20.sp)
         }
     }
 }
 
 @Composable
-fun SquareLine(arr: Array<piece>, onClick: (Pair<Int, Int>) -> Unit, rowID: Int) {
+fun SquareLine(arr: Array<Piece>, onClick: (Pair<Int, Int>) -> Unit, rowID: Int) {
     Row {
         arr.forEachIndexed { columnID, pieceStatus ->
             Square(
@@ -291,7 +299,7 @@ fun SquareLine(arr: Array<piece>, onClick: (Pair<Int, Int>) -> Unit, rowID: Int)
 }
 
 @Composable
-fun Square(piece: piece, modifier: Modifier = Modifier, pieceID: Pair<Int, Int>, onClick: (Pair<Int, Int>) -> Unit) {
+fun Square(piece: Piece, modifier: Modifier = Modifier, pieceID: Pair<Int, Int>, onClick: (Pair<Int, Int>) -> Unit) {
     Box(
         modifier = modifier
             .border(width = 1.dp, color = Color.LightGray, shape = RectangleShape)
@@ -300,10 +308,22 @@ fun Square(piece: piece, modifier: Modifier = Modifier, pieceID: Pair<Int, Int>,
             .background(color = Color.White),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = piece.toString(),
-            fontSize = 30.sp,
-        )
+        if (pieceID == Pair(7,7)) {
+            Image(
+                painter = painterResource(id = R.drawable.icon),
+                contentDescription = null,
+                alpha = 0.5F
+            )
+        }
+        if (piece != Piece.NONE) {
+            Image(
+                painter = painterResource(piece.toImage()),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(3.dp)
+            )
+        }
     }
 }
 
