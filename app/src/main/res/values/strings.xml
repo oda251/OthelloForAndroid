@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Othello</string>
+    <string name="skip">ターンをスキップする</string>
+    <string name="newGame">新しく始める</string>
+    <string name="blacksTurn">黒のターンです</string>
+    <string name="whitesTurn">白のターンです</string>
+    <string name="showAmount">黒:%s 白:%s</string>
+    <string name="do_over">待った</string>
+</resources>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Othello</string>
+    <string name="skip">Pass this turn</string>
+    <string name="newGame">New Game</string>
+    <string name="blacksTurn">Black\'s turn now</string>
+    <string name="whitesTurn">White\'s turn now</string>
+    <string name="showAmount">Black:%s White:%s</string>
+    <string name="do_over">Do-Over</string>
+</resources>
